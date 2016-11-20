@@ -1,0 +1,25 @@
+#{extends 'main.html' /}
+#{set title:'Home' /}
+
+#{if rubricURLs.size() > 0}
+    <div class="rubric-urls">    
+        <h3>URL рубрики</h3>
+    
+        #{list items:rubricURLs, as:'rubricURL'}
+            <div class="rubric-url">
+	            <span>${rubricURL.URL}</span>
+	            <span>${rubricURL.sites_count}</span>
+	            <span>${rubricURL.saved_domains_count}</span>
+	            <span>${rubricURL.status.name}</span>
+            </div>
+        #{/list}
+        
+    </div>
+    
+#{/if}
+
+#{else}
+    <div class="empty">
+       На текущий момент не задано ниодного URL рубрики.
+    </div>
+#{/else}

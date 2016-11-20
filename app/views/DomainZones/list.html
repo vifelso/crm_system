@@ -1,0 +1,161 @@
+#{extends 'CRUD/layout.html' /}
+#{set title:'Доменные зоны | ' + messages.get('application.title')/}
+<script type="text/javascript" charset="utf-8">
+ 
+    $(document).ready(function() {
+    	document.getElementById('domain_zones_link').setAttribute("class", "current");
+    	var editPermission = ${type.controllerClass.checkEditPermission()}
+       	
+		Table1 = $('#crudListTable').dataTable( {
+			"iDisplayLength": 15,
+			"aLengthMenu": [[15, 30, 50, 100], [15, 30, 50, 100]],
+     		"bJQueryUI": true,
+     		"sPaginationType": "full_numbers",
+     		"bAutoWidth": false,
+     		"aaSorting": [[2,'desc']],
+     		"oLanguage": {"sUrl": "/datatables/language/ru_RU.txt"},
+    		"bServerSide": true,
+        	"sAjaxSource": '${type.controllerName}.json?filter1_field=status_id&filter1_value=1',
+	        "aoColumns": [
+	        	{ "bVisible": false, "sName": 'id'},
+	        	{ "sTitle": "Доменная зона", "sWidth": "40%", "sName": 'name', "sClass": "notUnderline",
+					"fnRender": function ( oObj ) {return getDomainZoneName(oObj);}
+            	},
+	        	{ "sTitle": "Количество доменов", "sWidth": "20%", "sName": 'domains_count'},
+	        	{ "sTitle": "Количество пров. доменов", "sWidth": "20%", "sName": 'checked_domains_count'},
+	        	{ "bVisible": false, "sName": "status"},
+	            { "sTitle": "Действия", "sWidth": "20%", "sClass": 'rightCell', "bSortable": false,
+	            	"fnRender": function ( oObj ) {
+	            		var actions = "";
+	            		if(editPermission){
+	            			actions = drowActionIcons(oObj);
+	            		}
+	            		return actions;
+	            	}
+	            }
+	        ]
+		});
+		
+		additionalRefresh();
+		
+	});
+
+	var switchTab = function(status_id) {
+		var oSettings = Table1.fnSettings();
+ 		oSettings.sAjaxSource  = "${type.controllerName}.json?filter1_field=status_id&filter1_value=" + status_id;
+		Table1.fnDraw();
+		additionalRefresh();
+	}
+	
+	var getDomainZonesCount = #{jsAction @DomainZones.getdomainzonescount() /}
+		
+	var additionalRefresh = function() {
+		var domainZonesCounts;
+		$.ajax({
+            url: getDomainZonesCount(),
+            success: function(data) {
+                 domainZonesCounts = data.split(",");
+                 for(i=0; i < domainZonesCounts.length; i++) {
+                 	elenemtId = "#domainZonesCounts" + (i + 1);
+                 	$(elenemtId).html(domainZonesCounts[i]);
+                 }
+            }
+        });
+	}
+	
+	var drowActionIcons = function (tableObject) {
+		var status = tableObject.aData[4];
+		var noInfoLink = "<a href='javascript:noInfo(" + tableObject.aData[0] + ");'>" + getIcon('cancel', 'Информация недоступна') + "</a>";
+		var checkPossibleLink = "<a href='javascript:checkPossible(" + tableObject.aData[0] + ");'>" + getIcon('check', 'Проверка возможна') + "</a>";
+		var checkZoneLink = "<a href='javascript:checkZone(" + tableObject.aData[0] + ");'>" + getIcon('refresh', 'Проверить доменную зону') + "</a>";
+		var actionLinks = "";
+		if (status == "Непроверена") {
+			actionLinks = noInfoLink + checkPossibleLink;
+		}
+		if (status == "Информация недоступна") {
+			actionLinks = checkPossibleLink;
+		}
+		if (status == "Проверка возможна") {
+			actionLinks = noInfoLink + checkZoneLink;
+		}
+		if (status == "Ошибка") {
+			actionLinks = checkZoneLink;
+		}		
+		return actionLinks;	
+	}
+
+	var noInfo = function(url_id) {
+		var noInfoAction = #{jsAction @noinfo(':id') /};       
+        $.ajax({
+            url: noInfoAction({id: url_id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var checkPossible = function(url_id) {
+		var checkPossibleAction = #{jsAction @checkpossible(':id') /};       
+        $.ajax({
+            url: checkPossibleAction({id: url_id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var checkZone = function(url_id) {
+		var checkZoneAction = #{jsAction @checkzone(':id') /};       
+        $.ajax({
+            url: checkZoneAction({id: url_id}),
+            success: function(data) {
+            	if (data == ""){
+            		Table1.fnDraw(false);
+					additionalRefresh();
+				} else {
+					$("#domainZonesReadyForCheck").html(data);
+					$('#domainZoneNotReadyDialog').dialog({
+			            width: 400,
+			            modal: true,
+			            buttons: {
+			                "Ок": function() {
+			                    $(this).dialog("close");
+			                }
+			            }
+			        });
+				}
+            }
+        });
+    }
+	
+	var getDomainZoneName = function (tableObject) {
+		domainzoneLink = "<a id='/domainzones/" + tableObject.aData[0] + "' title='Доменная зона: " + tableObject.aData[1] + "' href='#' onclick='openModal(this);'>" + tableObject.aData[1] + "</a>";
+		return domainzoneLink;
+	}
+	
+</script>
+
+<div id="crudList" class="${type.name}">
+    <h2 id="crudListTitle">Доменные зоны</h2>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1" onclick="switchTab(1);">Непроверены (<span id="domainZonesCounts1"></span>)</a></li>
+			<li><a href="#tabs-2" onclick="switchTab(2);">Инф. недоступна (<span id="domainZonesCounts2"></span>)</a></li>
+			<li><a href="#tabs-3" onclick="switchTab(3);">Проверка возможна (<span id="domainZonesCounts3"></span>)</a></li>
+			<li><a href="#tabs-4" onclick="switchTab(4);">Проверяются (<span id="domainZonesCounts4"></span>)</a></li>
+			<li><a href="#tabs-5" onclick="switchTab(5);">Ошибка (<span id="domainZonesCounts5"></span>)</a></li>
+			<li><a href="#tabs-6" onclick="switchTab(6);">Проверены (<span id="domainZonesCounts6"></span>)</a></li>
+		</ul>
+		<div id="tabs-1"></div><div id="tabs-2"></div><div id="tabs-3"></div><div id="tabs-4"></div><div id="tabs-5"></div><div id="tabs-6"></div>
+	</div>
+	<div id="crudListDivTabs">
+		<table id="crudListTable"></table>
+	</div>
+	<div id="domainZoneNotReadyDialog" class="jqModal" title="Доменная зона не готова к проверке">
+		<p><span class="ui-icon ui-icon-alert jqModalAlert"></span> Данная доменная зона еще не готова к проверке!</p>
+		<p>Список доменных зон, готовых к проверке:</p>
+		<p id="domainZonesReadyForCheck"><p>
+	</div>
+</div>

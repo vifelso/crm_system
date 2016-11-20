@@ -1,0 +1,48 @@
+#{extends 'CRUD/layout.html' /}
+#{set title:'Способы оплаты | ' + messages.get('application.title')/}
+<script type="text/javascript" charset="utf-8">
+ 
+    $(document).ready(function() {
+    	document.getElementById('payment_link').setAttribute("class", "current");
+       	
+		Table1 = $('#crudListTable').dataTable( {
+			"iDisplayLength": 15,
+			"aLengthMenu": [[15, 30, 50, 100], [15, 30, 50, 100]],
+     		"bJQueryUI": true,
+     		"sPaginationType": "full_numbers",
+     		"bAutoWidth": false,
+     		"aaSorting": [[1,'asc']],
+     		"oLanguage": {"sUrl": "/datatables/language/ru_RU.txt"},
+    		"bServerSide": true,
+        	"sAjaxSource": '${type.controllerName}.json',
+	        "aoColumns": [
+	        	{ "bVisible": false, "sName": 'id'},
+	        	{ "sTitle": "Имя", "sWidth": "15%", "sClass": "notUnderline", "sName": 'name',
+	            	"fnRender": function ( oObj ) {
+                		return "<a id='/paymentmethods/" + oObj.aData[0] + "' title='Способ оплаты: " + oObj.aData[1] + "' href='#' onclick='openModal(this);'>" + oObj.aData[1] + "</a>";
+            		}
+            	},
+	            { "sTitle": "Процент за перевод", "sWidth": "15%", "sName": "tax"},
+	            { "sTitle": "Данные, необходимы для перевода", "sWidth": "70%", "sName": "required_transfer_data"},
+	            { "bVisible": false, "sName": 'description'}
+	        ]
+		});
+		
+	});
+	
+	var additionalRefresh = function() {
+	}
+	
+</script>
+
+<div id="crudList" class="${type.name}">
+    <h2 id="crudListTitle">Способы оплаты</h2>
+	<div id="crudListDivWithoutTabs">
+		<table id="crudListTable"></table>
+	</div>
+	#{if type.controllerClass.checkEditPermission()}
+	<p id="crudListAdd">
+    	<a id="@{blank()}" title="Новый способ оплаты" href="#" onclick="openModal(this);">Добавить способ оплаты</a>
+    </p>
+    #{/if}
+</div>

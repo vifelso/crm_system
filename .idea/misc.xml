@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleLocalSettings">
+    <option name="modificationStamps">
+      <map>
+        <entry key="$PROJECT_DIR$/../test19.09.2016/interview-tasks" value="2948579936811" />
+      </map>
+    </option>
+    <option name="externalProjectsViewState">
+      <projects_view />
+    </option>
+  </component>
+  <component name="IlluminatedCloudSettings">
+    <option name="connections">
+      <list>
+        <IlluminatedCloudConnection>
+          <option name="name" value="myTrueConnection" />
+          <option name="password" value="dfdcdfc3dfccdfcfdfc6dfd9dfc5df98df9bdf9adf9edf92df93" />
+          <option name="securityToken" value="dfd2dfccdff8dfcbdf99dfd0dfdcdfdddfefdfe3dfd9dfdfdfcddfe9dfc0df9adfc2dfd2dfebdff3dfe3df9edff3dfd8dffc" />
+          <option name="username" value="st.vooly@gmail.com" />
+        </IlluminatedCloudConnection>
+      </list>
+    </option>
+    <option name="selectedConnectionIndex" value="0" />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="Bundled (Maven 3)" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" default="true" assert-keyword="true" jdk-15="true" />
+  <component name="masterDetails">
+    <states>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

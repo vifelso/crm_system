@@ -1,0 +1,117 @@
+#{extends 'CRUD/layout.html' /}
+#{set title:'Рубрики | ' + messages.get('application.title')/}
+<script type="text/javascript" charset="utf-8">
+ 
+    $(document).ready(function() {
+    	document.getElementById('rubricurls_link').setAttribute("class", "current");
+    	var editPermission = ${type.controllerClass.checkEditPermission()}
+       	
+		Table1 = $('#crudListTable').dataTable( {
+			"iDisplayLength": 15,
+			"aLengthMenu": [[15, 30, 50, 100], [15, 30, 50, 100]],
+     		"bJQueryUI": true,
+     		"sPaginationType": "full_numbers",
+     		"bAutoWidth": false,
+     		"aaSorting": [[1,'asc']],
+     		"oLanguage": {"sUrl": "/datatables/language/ru_RU.txt"},
+    		"bServerSide": true,
+        	"sAjaxSource": '${type.controllerName}.json?filter1_field=status_id&filter1_value=1',
+	        "aoColumns": [
+	        	{ "bVisible": false, "sName": 'id'},
+	            { "sTitle": "Адрес рубрики", "sWidth": "32%", "sClass": "notUnderline", "sName": 'URL',
+	            	"fnRender": function ( oObj ) {
+                		return "<a id='/rubricurls/" + oObj.aData[0] + "' title='Рубрика: " + oObj.aData[1] + "' href='#' onclick='openModal(this);'>" + oObj.aData[1] + "</a>";
+            		}
+            	},
+	            { "sTitle": "Кол. сайтов", "sWidth": "11%", "sName": "sites_count"},
+	            { "sTitle": "Кол. пров. сайтов", "sWidth": "13%", "sName": "checked_sites_count"},
+	            { "sTitle": "Проц. пров. сайтов", "sWidth": "14%", "sName": "checked_sites_percent",
+               		"fnRender": function ( oObj ) {return oObj.aData[4] + "%"; }
+            	},
+	            { "sTitle": "Кол. сохр. доменов", "sWidth": "14%", "sName": "saved_domains_count"},
+	            { "sTitle": "Дата посл. обн.", "sWidth": "12%", "sName": "last_check_date",
+	            	"fnRender": function ( oObj ) {return oObj.aData[6]; }
+            	},
+	            { "sTitle": "Статус", "sWidth": "15%", "bVisible": false, "sName": "status"},
+	            { "sTitle": "Действия", "sWidth": "15%", "sClass": 'rightCell', "bSortable": false,
+	            	"fnRender": function ( oObj ) {
+	            		var actions = "";
+	            		if(editPermission){
+	            			actions = drowActionIcons(oObj);
+	            		}
+	            		return actions;
+	            	}
+	            }
+	        ]
+		});
+	
+		additionalRefresh();	
+		
+	});
+	
+	var switchTab = function(status_id) {
+		var oSettings = Table1.fnSettings();
+ 		oSettings.sAjaxSource  = "${type.controllerName}.json?filter1_field=status_id&filter1_value=" + status_id;
+		Table1.fnDraw();
+		additionalRefresh();
+	}
+	
+	var getRubricUrlsCount = #{jsAction @RubricURLs.getrubricurlscount() /}
+	
+	var additionalRefresh = function() {
+		var urlsCount;
+		$.ajax({
+            url: getRubricUrlsCount(),
+            success: function(data) {
+                 rubricCounts = data.split(",");
+                 for(i=0; i < rubricCounts.length; i++) {
+                 	elenemtId = "#urlsCount" + (i + 1);
+                 	$(elenemtId).html(rubricCounts[i]);
+                 }
+            }
+        });
+	}
+	
+	var drowActionIcons = function (tableObject) {
+		var status = tableObject.aData[7];
+		var actionLinks = "<a href='javascript:checkURL(" + tableObject.aData[0] + ");'>" + getIcon('refresh', 'Проверить рубрику') + "</a>";
+		if (status == "В процессе") {
+			actionLinks = "";
+		}
+		return actionLinks;	
+	}
+	
+	var checkURL = function(url_id) {
+		var checkURLaction = #{jsAction @checkurl(':id') /};       
+        $.ajax({
+            url: checkURLaction({id: url_id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+	
+</script>
+
+<div id="crudList" class="${type.name}">  
+	<h2 id="crudListTitle">Рубрики</h2>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1" onclick="switchTab(1);">Не начаты (<span id="urlsCount1"></span>)</a></li>
+			<li><a href="#tabs-2" onclick="switchTab(2);">В процессе (<span id="urlsCount2"></span>)</a></li>
+			<li><a href="#tabs-3" onclick="switchTab(3);">Ошибка (<span id="urlsCount3"></span>)</a></li>
+			<li><a href="#tabs-4" onclick="switchTab(4);">Частично проверены (<span id="urlsCount4"></span>)</a></li>
+			<li><a href="#tabs-4" onclick="switchTab(5);">Полностью проверены (<span id="urlsCount5"></span>)</a></li>
+		</ul>
+		<div id="tabs-1"></div><div id="tabs-2"></div><div id="tabs-3"></div><div id="tabs-4"></div><div id="tabs-5"></div>
+	</div>
+	<div id="crudListDivTabs">
+		<table id="crudListTable"></table>
+	</div>
+	#{if type.controllerClass.checkEditPermission()}
+    <p id="crudListAdd">
+    	<a id="@{blank()}" title="Новая рубрика" href="#" onclick="openModal(this);">Добавить рубрику</a>
+    </p>
+    #{/if}
+</div>

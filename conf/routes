@@ -1,0 +1,102 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                                       Application.index
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Check URL
+GET     /rubricurls/{id}/checkurl               RubricURLs.checkURL
+
+# Get URL count by status
+GET     /rubricurls/getrubricurlscount          RubricURLs.getRubricUrlsCount
+
+# Show domain by name
+GET     /domains/{name}/showbyname        		Domains.showByName
+
+# Refresh domain parameters
+GET     /domains/{id}/refreshdomainparams       Domains.refreshDomainParams
+
+# Make domain checked
+GET     /domains/{id}/checkdomain               Domains.checkDomain
+
+# Make domain choosen
+GET     /domains/{id}/choosedomain              Domains.chooseDomain
+
+# Order domain
+GET     /domains/{id}/canceldomainorders        Domains.cancelDomainOrders
+
+# Get domains count by status
+GET     /domains/getdomainscount                Domains.getDomainsCount
+
+# Get number of days before update domain
+GET     /domains/getupdatedomainbeforedays      Domains.getUpdateDomainBeforeDays
+
+# Get users count by status
+GET     /orders/getorderscount                	Orders.getOrdersCount
+
+# Set status of order to auto
+GET     /orders/{id}/autostatus        			Orders.autoStatus
+
+# Set status of order to onPhone
+GET     /orders/{id}/onphonestatus        		Orders.onPhoneStatus
+
+# Set status of order to notOnPhone
+GET     /orders/{id}/notonphonestatus        	Orders.notOnPhoneStatus
+
+# Set status of order to thinking
+GET     /orders/{id}/thinkingstatus        		Orders.thinkingStatus
+
+# Set status of order to agree
+GET     /orders/{id}/agreestatus        		Orders.agreeStatus
+
+# Set status of order to disagree
+GET     /orders/{id}/disagreestatus        		Orders.disagreeStatus
+
+# Set status of order to wait payment
+GET     /orders/{id}/paymentwaitstatus        	Orders.paymentWaitStatus
+
+# Set status of order to purchased
+GET     /orders/{id}/purchasedstatus        	Orders.purchasedStatus
+
+# Cancel order
+GET     /orders/{id}/cancelorder        		Orders.cancelOrder
+
+# Get users count by status
+GET     /users/getuserscount                	Users.getUsersCount
+
+# Block user
+GET     /users/{id}/blockuser                	Users.blockUser
+
+# Unblock user
+GET     /users/{id}/unblockuser                	Users.unblockUser
+
+# Get domain zones count by status
+GET     /domainzones/getdomainzonescount        DomainZones.getDomainZonesCount
+
+# Set status of zone to no info
+GET     /domainzones/{id}/noinfo           		DomainZones.noInfo
+
+# Set status of zone to check Possible
+GET     /domainzones/{id}/checkpossible         DomainZones.checkPossible
+
+# Check domains in domain zone
+GET     /domainzones/{id}/checkzone           	DomainZones.checkZone
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/                                staticDir:public
+
+# Import CRUD-datatables routes
+*       /                                       module:crud-datatables
+
+# Import CRUD routes
+*       /                                       module:crud
+
+# Import Secure routes
+*       /                                       module:secure
+
+# Catch all
+*       /{controller}/{action}                  {controller}.{action}

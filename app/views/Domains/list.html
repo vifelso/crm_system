@@ -1,0 +1,305 @@
+#{extends 'CRUD/layout.html' /}
+#{set title:'Домены | ' + messages.get('application.title')/}
+<script type="text/javascript" charset="utf-8">
+	var updatedDomainDays;
+	
+    $(document).ready(function() {
+    	document.getElementById('domains_link').setAttribute("class", "current");
+    	getUpdateBeforeDays();
+       	var editPermission = ${type.controllerClass.checkEditPermission()}
+       	
+		Table1 = $('#crudListTable').dataTable( {
+			"iDisplayLength": 15,
+			"aLengthMenu": [[15, 30, 50, 100], [15, 30, 50, 100]],
+     		"bJQueryUI": true,
+     		"sPaginationType": "full_numbers",
+     		"bAutoWidth": false,
+     		"aaSorting": [[6,'asc']],
+     		"oLanguage": {"sUrl": "/datatables/language/ru_RU.txt"},
+    		"bServerSide": true,
+        	"sAjaxSource": '${type.controllerName}.json?filter1_field=status_id&filter1_value=1',
+	        "aoColumns": [
+	        	{ "bVisible": false, "sName": 'id'},
+	        	{ "bVisible": false, "sName": 'name'},
+	            { "sTitle": "Домен", "sWidth": "11%", "sClass": "notUnderline", "sName": 'name',
+	            	"fnRender": function ( oObj ) {
+                		return "<a id='/domains/" + oObj.aData[0] + "' title='Домен: " + oObj.aData[1] + "' href='#' onclick='openModal(this);'>" + oObj.aData[1] + "</a>" +
+                				"<a href='http://" + oObj.aData[1] + "' target='_blank' class='external-link'><img src='/public/images/icons/external-link.png' title='Перейти на сайт'></a>";
+            		}
+            	},
+	            { "sTitle": "Тиц", "sWidth": "3%", "sName": "tic", "sClass": "notUnderline",
+					"fnRender": function ( oObj ) {return getTic(oObj);}
+            	},
+	            { "sTitle": "PR", "sWidth": "3%", "sName": "pr",
+					"fnRender": function ( oObj ) {return getPR(oObj);}
+            	},
+	            { "bVisible": false, "sName": 'created'},
+	            { "sTitle": "Оплачен до", "sWidth": "6%", "sName": "paid_till", "sType": "date",
+					"fnRender": function ( oObj ) {return getPaidTillDate(oObj.aData[6]);}
+            	},
+	            { "sTitle": "Дата осв.", "sWidth": "6%", "sName": "free_date", "sType": "date",
+					"fnRender": function ( oObj ) {return getFreeDate(oObj.aData[7]);}
+            	},
+	            { "sTitle": "ЯК", "sWidth": "19%", "sClass": "notUnderline", "sName": "main_category",
+	            	"fnRender": function ( oObj ) {
+                		return "<a title='Перейти на страницу каталога' target='_blank' href='http://yaca.yandex.ru" + oObj.aData[9] + "'>" + oObj.aData[8] + "</a>";
+            		}
+            	},
+	            { "bVisible": false, "sName": "catalog_page"},
+	            { "bVisible": false, "sName": 'additional_categories'},
+	            { "sTitle": "Пос.", "sWidth": "4%", "sName": "site_traffic",
+					"fnRender": function ( oObj ) {return getTraffic(oObj);}
+            	},
+	            { "sTitle": "Инд.", "sWidth": "4%", "sName": "in_index", "sClass": "notUnderline",
+					"fnRender": function ( oObj ) {return getIndexCount(oObj);}
+            	},
+	            { "sTitle": "Описание", "sWidth": "15%", "sName": "description"},
+	            { "sTitle": "Регион", "sWidth": "8%", "sName": "region", "sClass": "notUnderline",
+					"fnRender": function ( oObj ) {return getRegion(oObj);}
+            	},
+	            { "sTitle": "Архив", "sWidth": "4%", "sName": "web_archive_status", "sClass": "notUnderline",
+					"fnRender": function ( oObj ) {return getArchive(oObj);}
+            	},
+	            { "bVisible": false, "sName": "web_archive_count"},
+	            { "sTitle": "Регистратор", "sWidth": "9%", "sName": "registrator", "bSortable": false, "sClass": "notUnderline"},
+	            { "bVisible": false, "sName": "status"},
+	            { "bVisible": false, "sName": "whois_updated"},
+	            { "bVisible": false, "sName": "tic_updated"},
+	            { "bVisible": false, "sName": "params_updated"},
+	            { "bVisible": false, "sName": "domain_zone"},
+	            { "bVisible": false, "sName": "idn_url"},
+	            { "sTitle": "Действия", "sWidth": "7%", "sClass": 'rightCell', "bSortable": false,
+	            	"fnRender": function ( oObj ) {
+	            		var actions = "";
+	            		if(editPermission){
+	            			actions = drowActionIcons(oObj);
+	            		}
+	            		return actions;
+	            	}
+	            }
+	        ]
+		});
+		
+		additionalRefresh();
+		
+	});
+
+	var switchTab = function(status_id) {
+		var oSettings = Table1.fnSettings();
+ 		oSettings.sAjaxSource  = "${type.controllerName}.json?filter1_field=status_id&filter1_value=" + status_id;
+		Table1.fnDraw();
+	}
+	
+	var getUpdateDomainBeforeDays = #{jsAction @Domains.getupdatedomainbeforedays() /}
+	
+	var getUpdateBeforeDays = function() {
+		$.ajax({
+            url: getUpdateDomainBeforeDays(),
+            success: function(data) {
+				updatedDomainDays = parseInt(data);
+            }
+        });
+	}
+
+	var getDomainsCount = #{jsAction @Domains.getdomainscount() /}
+		
+	var additionalRefresh = function() {
+		$.ajax({
+            url: getDomainsCount(),
+            success: function(data) {
+                 domainCounts = data.split(",");
+                 for(i=0; i < domainCounts.length; i++) {
+                 	elenemtId = "#domainsCount" + (i + 1);
+                 	$(elenemtId).html(domainCounts[i]);
+                 }
+            }
+        });
+	}
+
+	var drowActionIcons = function (tableObject) {
+		var status = tableObject.aData[18];
+		var actionLinks = "";
+		var refreshDomainLink = "<a href='javascript:refreshDomainParams(" + tableObject.aData[0] + ");'>" + getIcon('refresh', 'Обновить параметры') + "</a>";
+		var checkDomainLink = "<a href='javascript:checkDomain(" + tableObject.aData[0] + ");'>" + getIcon('search', 'В просмотренные') + "</a>";
+		var chooseDomainLink = "<a href='javascript:chooseDomain(" + tableObject.aData[0] + ");'>" + getIcon('arrowthick-1-e', 'В выбранные') + "</a>";
+		var orderDomainLink = "<a href='#' onclick='openModal(this);' id='/orders/new?domainid=" + tableObject.aData[0] + "'>" + getIcon('check', 'Сделать заказ') + "</a>";
+		var cancelDomainOrdersLink = "<a href='javascript:cancelDomainOrders(" + tableObject.aData[0] + ");'>" + getIcon('cancel', 'Отменить заказ на домен') + "</a>";
+		
+		if (status == "Непроверен") {
+			actionLinks = refreshDomainLink + orderDomainLink + chooseDomainLink + checkDomainLink;
+		}
+		if (status == "Просмотрен") {
+			actionLinks = refreshDomainLink + orderDomainLink + chooseDomainLink;
+		}
+		if (status == "Выбран") {
+			actionLinks = refreshDomainLink + orderDomainLink + checkDomainLink;
+		}
+		if (status == "Заказан") {
+			actionLinks = refreshDomainLink + cancelDomainOrdersLink;
+		}
+		if (status == "Удален") {
+			actionLinks = refreshDomainLink;
+		}
+		return actionLinks;
+	}
+	
+	var refreshDomainParams = function(id) {
+		var refreshDomainParamsAction = #{jsAction @refreshdomainparams(':id') /};       
+        $.ajax({
+            url: refreshDomainParamsAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var checkDomain = function(id) {
+		var checkDomainAction = #{jsAction @checkdomain(':id') /};       
+        $.ajax({
+            url: checkDomainAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var chooseDomain = function(id) {
+		var chooseDomainAction = #{jsAction @choosedomain(':id') /};       
+        $.ajax({
+            url: chooseDomainAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }	
+	
+	var cancelDomainOrders = function(id) {
+        $('#cancelOrderDialog').dialog({
+            width: 400,
+            modal: true,
+            buttons: {
+                "Да": function() {
+                    var cancelDomainOrdersAction = #{jsAction @canceldomainorders(':id') /};
+                    $.ajax({
+			            url: cancelDomainOrdersAction({id: id}),
+			            success: function(events) {
+							Table1.fnDraw(false);
+							additionalRefresh();
+			            }
+			        });
+			        $(this).dialog("close");
+                },
+                "Нет": function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
+    
+    var getTraffic = function (tableObject) {
+		var traffic = tableObject.aData[11];
+		if(traffic == "0"){
+			traffic = "";
+		}
+		return traffic;
+	}
+    
+	var getIndexCount = function (tableObject) {
+		var indexCount = tableObject.aData[12];
+		if(indexCount == "-1"){
+			indexCount = "-";
+		}
+		var indexLink = "<a title='Посмотреть количество страниц в Яндекс' target='_blank' href='http://yandex.ru/yandsearch?text=host:" + tableObject.aData[1] + "&lr=0'>" + indexCount + "</a>";
+		return indexLink;
+	}
+	
+	var getRegion = function (tableObject) {
+		var region = tableObject.aData[14];
+		var regionLink = "<a title='Проверить регион' target='_blank' href='http://bar-navig.yandex.ru/u?ver=2&show=32&url=http://" + tableObject.aData[1] + "'>" + region + "</a>";
+		return regionLink;
+	}
+	
+	var getArchive = function (tableObject) {
+		var archiveStatus = tableObject.aData[15];
+		var archiveCount = tableObject.aData[16];
+		if(archiveCount == "-1"){
+			archiveCount = "-";
+		}
+		archiveLink = "";
+		if (archiveStatus != "") {
+			archiveLink = archiveStatus + "<a title='Посмотреть архив' target='_blank' href='http://wayback.archive.org/web/*/" + tableObject.aData[23] + "'> (" + archiveCount + ")</a>";
+		} else {
+			archiveLink = "<a title='Посмотреть архив' target='_blank' href='http://wayback.archive.org/web/*/" + tableObject.aData[23] + "'>" + archiveCount + "</a>";
+		}
+		return archiveLink;
+	}
+	
+	var getTic = function (tableObject) {
+		var tic = tableObject.aData[3];
+		ticLink = "<a title='Проверить ТИЦ' target='_blank' href='http://yandex.ru/cycounter?" + tableObject.aData[1] + "'>" + tic + "</a>";
+		return ticLink;
+	}
+	
+	var getPR = function (tableObject) {
+		var pr = tableObject.aData[4];
+		if(pr == -1){
+			pr = "-";
+		}
+		return pr;
+	}
+	
+	var getPaidTillDate = function (dateString) {
+		var returnDate = dateString;
+		if (dateString == "3000-01-01"){
+			returnDate = "";
+		} else {
+			var paidTillDate = (new Date(returnDate)).getTime();
+			var currentDate = new Date();
+			var currentDateTime = (new Date()).getTime();
+			var dateToCompare = currentDate.setDate(currentDate.getDate() + updatedDomainDays);
+			if(paidTillDate < dateToCompare){
+				if(paidTillDate < currentDateTime){
+					returnDate = "<span style='color:red'>" + returnDate + "</span>";
+				}
+			} else {
+				returnDate = "<span style='color:#787878'>" + returnDate + "</span>";
+			}
+		}
+		return returnDate;
+	}
+	
+	var getFreeDate = function (dateString) {
+		var returnDate = dateString;
+		if (dateString == "3000-01-01"){
+			returnDate = "";
+		}
+		return returnDate;
+	}
+	
+</script>
+
+<div id="crudList" class="${type.name}">
+    <h2 id="crudListTitle">Домены</h2>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1" onclick="switchTab(1);">Не проверены (<span id="domainsCount1"></span>)</a></li>
+			<li><a href="#tabs-2" onclick="switchTab(2);">Просмотрены (<span id="domainsCount2"></span>)</a></li>
+			<li><a href="#tabs-3" onclick="switchTab(3);">Выбраны (<span id="domainsCount3"></span>)</a></li>
+			<li><a href="#tabs-4" onclick="switchTab(4);">Заказаны (<span id="domainsCount4"></span>)</a></li>
+			<li><a href="#tabs-5" onclick="switchTab(5);">Удалены (<span id="domainsCount5"></span>)</a></li>
+			<li><a href="#tabs-6" onclick="switchTab(6);">Куплены (<span id="domainsCount6"></span>)</a></li>
+		</ul>
+		<div id="tabs-1"></div><div id="tabs-2"></div><div id="tabs-3"></div><div id="tabs-4"></div><div id="tabs-5"></div><div id="tabs-6"></div>
+	</div>
+	<div id="crudListDivTabs">
+		<table id="crudListTable"></table>
+	</div>
+	<div id="cancelOrderDialog" class="jqModal" title="Отмена заказа по домену">
+		<p><span class="ui-icon ui-icon-alert jqModalAlert"></span> Вы уверены, что хотите отменить заказ по этому домену?</p>
+		<p>Для подтверждения отмены нажмите "Да"</p>
+		<p>Если вы не хотите отменять заказ, нажмите "Нет"<p>
+	</div>
+</div>

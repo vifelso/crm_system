@@ -1,0 +1,135 @@
+#{extends 'CRUD/layout.html' /}
+#{set title:'Сотрудники | ' + messages.get('application.title')/}
+<script type="text/javascript" charset="utf-8">
+ 
+    $(document).ready(function() {
+    	document.getElementById('users_link').setAttribute("class", "current");
+    	var editPermission = ${type.controllerClass.checkEditPermission()}
+       	
+		Table1 = $('#crudListTable').dataTable( {
+			"iDisplayLength": 15,
+			"aLengthMenu": [[15, 30, 50, 100], [15, 30, 50, 100]],
+     		"bJQueryUI": true,
+     		"sPaginationType": "full_numbers",
+     		"bAutoWidth": false,
+     		"aaSorting": [[0,'asc']],
+     		"oLanguage": {"sUrl": "/datatables/language/ru_RU.txt"},
+    		"bServerSide": true,
+        	"sAjaxSource": '${type.controllerName}.json?filter1_field=status_id&filter1_value=1',
+	        "aoColumns": [
+	        	{ "bVisible": false, "sName": 'id'},
+	        	{ "sTitle": "ФИО", "sWidth": "20%", "sName": 'family_name', "sClass": "notUnderline",
+					"fnRender": function ( oObj ) {return getUserName(oObj);}
+            	},
+	        	{ "bVisible": false, "sName": 'first_name'},
+	        	{ "bVisible": false, "sName": 'middle_name'},
+	        	{ "sTitle": "E-mail", "sWidth": "15%", "sName": 'email'},
+	        	{ "bVisible": false, "sName": 'password'},
+	        	{ "sTitle": "Контакты", "sWidth": "35%", "sName": 'contacts'},
+	        	{ "sTitle": "Должность", "sWidth": "20%", "sName": 'position', "bSortable": false},
+	        	{ "bVisible": false, "sName": 'permission'},
+	        	{ "bVisible": false, "sName": "register_date"},
+	        	{ "bVisible": false, "sName": "block_date"},
+				{ "bVisible": false, "sName": "status"},
+	            { "sTitle": "Действия", "sWidth": "10%", "sClass": 'rightCell', "bSortable": false,
+	            	"fnRender": function ( oObj ) {
+	            		var actions = "";
+	            		if(editPermission){
+	            			actions = drowActionIcons(oObj);
+	            		}
+	            		return actions;
+	            	}
+	            }
+	        ]
+		});
+		
+		additionalRefresh();
+		
+	});
+
+	var switchTab = function(status_id) {
+		var oSettings = Table1.fnSettings();
+ 		oSettings.sAjaxSource  = "${type.controllerName}.json?filter1_field=status_id&filter1_value=" + status_id;
+		Table1.fnDraw();
+	}
+	
+	var getUsersCount = #{jsAction @Users.getuserscount() /}
+		
+	var additionalRefresh = function() {
+		var usersCount;
+		$.ajax({
+            url: getUsersCount(),
+            success: function(data) {
+                 userCounts = data.split(",");
+                 for(i=0; i < userCounts.length; i++) {
+                 	elenemtId = "#usersCount" + (i + 1);
+                 	$(elenemtId).html(userCounts[i]);
+                 }
+            }
+        });
+	}
+	
+	var drowActionIcons = function (tableObject) {
+		var status = tableObject.aData[11];
+		var actionLinks = "";
+		
+		if (status == "Активный") {
+			actionLinks = "<a href='javascript:blockUser(" + tableObject.aData[0] + ");'>" + getIcon('locked', 'Заблокировать пользователя') + "</a>";
+		}
+		if (status == "Заблокирован") {
+			actionLinks = "<a href='javascript:unblockUser(" + tableObject.aData[0] + ");'>" + getIcon('unlocked', 'Разблокировать пользователя') + "</a>";
+		}
+		
+		return actionLinks;
+	}
+	
+	var blockUser = function(id) {
+		var blockUserAction = #{jsAction @blockuser(':id') /};       
+        $.ajax({
+            url: blockUserAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var unblockUser = function(id) {
+		var unblockUserAction = #{jsAction @unblockuser(':id') /};       
+        $.ajax({
+            url: unblockUserAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+	
+	var getUserName = function (tableObject) {
+		var familyName = tableObject.aData[1];
+		var firstName = tableObject.aData[2];
+		var middleName = tableObject.aData[3];
+		userLink = "<a id='/users/" + tableObject.aData[0] + "' title='Пользователь: " + familyName + 
+					" " + firstName + " " + middleName + "' href='#' onclick='openModal(this);'>"
+					 + familyName + " " + firstName + " " + middleName + "</a>";
+		return userLink;
+	}
+	
+</script>
+
+<div id="crudList" class="${type.name}">
+    <h2 id="crudListTitle">Сотрудники</h2>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1" onclick="switchTab(1);">Активные (<span id="usersCount1"></span>)</a></li>
+			<li><a href="#tabs-2" onclick="switchTab(2);">Заблокированы (<span id="usersCount2"></span>)</a></li>
+		</ul>
+		<div id="tabs-1"></div><div id="tabs-2"></div>
+	</div>
+	<div id="crudListDivTabs">
+		<table id="crudListTable"></table>
+	</div>
+	<p id="crudListAdd">
+    	<a id="@{blank()}" title="Новый пользователь" href="#" onclick="openModal(this);">Добавить сотрудника</a>
+    </p>
+</div>

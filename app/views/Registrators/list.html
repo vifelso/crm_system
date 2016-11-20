@@ -1,0 +1,53 @@
+#{extends 'CRUD/layout.html' /}
+#{set title:'Регистраторы | ' + messages.get('application.title')/}
+<script type="text/javascript" charset="utf-8">
+ 
+    $(document).ready(function() {
+    	document.getElementById('registrators_link').setAttribute("class", "current");
+       	
+		Table1 = $('#crudListTable').dataTable( {
+			"iDisplayLength": 15,
+			"aLengthMenu": [[15, 30, 50, 100], [15, 30, 50, 100]],
+     		"bJQueryUI": true,
+     		"sPaginationType": "full_numbers",
+     		"bAutoWidth": false,
+     		"aaSorting": [[1,'asc']],
+     		"oLanguage": {"sUrl": "/datatables/language/ru_RU.txt"},
+    		"bServerSide": true,
+        	"sAjaxSource": '${type.controllerName}.json',
+	        "aoColumns": [
+	        	{ "bVisible": false, "sName": 'id'},
+	        	{ "sTitle": "Сайт регистратора", "sWidth": "12%", "sClass": "notUnderline", "sName": 'site',
+	            	"fnRender": function ( oObj ) {
+                		return "<a id='/registrators/" + oObj.aData[0] + "' title='Регистратор: " + oObj.aData[1] + "' href='#' onclick='openModal(this);'>" + oObj.aData[1] + "</a>" +
+                			   "<a href='http://" + oObj.aData[1] + "' target='_blank' class='external-link'><img src='/public/images/icons/external-link.png' title='Перейти на сайт'></a>";
+            		}
+            	},
+	            { "sTitle": "Имя", "sWidth": "13%", "sName": "name"},
+	            { "sTitle": "Идентификатор", "sWidth": "13%", "sName": "registrator_name", "bSortable": false},
+	            { "sTitle": "Процедура передачи", "sWidth": "62%", "sName": "domain_transfer_procedure"},
+				{ "bVisible": false, "sName": 'domain_transfer_data'},
+	            { "bVisible": false, "sName": 'domain_intake_procedure'},
+	            { "bVisible": false, "sName": 'additional_info'},
+	            { "bVisible": false, "sName": 'account_data'}
+	        ]
+		});
+		
+	});
+	
+	var additionalRefresh = function() {
+	}
+	
+</script>
+
+<div id="crudList" class="${type.name}">
+    <h2 id="crudListTitle">Регистраторы</h2>
+	<div id="crudListDivWithoutTabs">
+		<table id="crudListTable"></table>
+	</div>
+	#{if type.controllerClass.checkEditPermission()}
+	<p id="crudListAdd">
+    	<a id="@{blank()}" title="Новый регистратор" href="#" onclick="openModal(this);">Добавить регистратора</a>
+    </p>
+    #{/if}
+</div>

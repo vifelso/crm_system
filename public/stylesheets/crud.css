@@ -1,0 +1,321 @@
+/** Administration area **/
+
+#crud {
+	margin: 0;
+	padding: 0;
+	font-family: 'Helvetica', 'Arial', 'Sans';
+	font-size: 90%;
+	color: #111;
+}
+
+/** Flash message **/
+
+.crudFlash {
+	padding: 5px 20px;
+	border-bottom: 1px solid #ddd;
+	color: #fff;
+}
+
+.flashError {
+	background: #c00;
+}
+
+.flashSuccess {
+	background: #54BD06;
+}
+
+/** Content **/
+
+#crud #crudContent {
+	padding: 3px 15px 10px 15px;
+}
+
+#crud #crudContent h2 {
+	color: #333;
+	font-weight: normal;
+	margin-top: 10px;
+}
+
+/** Tables **/
+
+#crud #crudContent table {
+	width: 100%;
+	border: px solid #ddd;
+	border-top: none;
+	border-collapse: collapse;
+}
+
+#crud #crudContent table tr {
+	height:28px;
+}
+
+#crud #crudContent table th {
+	color: #fff;
+	font-weight: bold;
+	height:32px;
+}
+
+#crud #crudContent table th a {
+	color: #fff;
+	font-weight: bold;
+}
+
+#crud #crudContent table th {
+	vertical-align: top;
+	text-align: left;
+	padding: 3px 1px 3px 4px;
+}
+
+#crud #crudContent table td {
+	padding: 3px 1px 3px 4px;
+}
+
+#crud #crudContent table td {
+	border: 1px solid #eee;
+}
+
+#crud #crudContent table tr:last-child td {
+	border-bottom: 1px solid #ddd;
+}
+
+.crudSortedAsc:after {
+	content: '▼';
+}
+
+.crudSortedDesc:after {
+	content: '▲';
+}
+
+/** Forms **/
+
+form {
+	margin: 0;
+}
+
+input, textarea, select {
+	font-family: 'Helvetica', 'Arial', 'Sans';
+	font-size: 12px;
+}
+
+textarea {
+	padding: 2px;
+}
+
+.objectForm {
+	border: 1px solid #ddd;
+}
+
+.crudField label {
+	display: block;
+	font-weight: bold;
+	width: 138px;
+	float: left;
+	color: #666;
+	cursor: pointer;
+	font-size:80%;
+	padding-right: 10px;
+}
+
+.crudField {
+	padding: 10px;
+	border-bottom: 1px solid #eee;
+	position: relative;
+}
+
+.crud_hidden {
+    display: none;
+}
+
+.crudButtons {
+	text-align: right;
+	margin: 0;
+	padding: 10px;
+	background-color: #E6E6E6;
+	-moz-border-radius-bottomleft: 6px;
+	-webkit-border-bottom-left-radius: 6px;
+	-khtml-border-bottom-left-radius: 6px;
+	-moz-border-radius-bottomright: 6px;
+	-webkit-border-bottom-right-radius: 6px;
+	-khtml-border-bottom-right-radius: 6px;
+}
+
+.crudField .error {
+	color: #c00;
+	padding-left: 10px;
+	position: absolute;
+	top: 15px;
+	font-size: 80%;
+}
+
+.crudField .hasError {
+	color: #c00;
+}
+
+.crudField select[multiple] {
+	max-height: 100px;
+}
+
+.crudField .crudHelp {
+	font-size: 70%;
+	color: #888;
+	display: block;
+	margin-left: 20%;
+	margin-top: 5px;
+}
+
+form .currentAttachment {
+	display: block;
+	font-size: 80%;
+	margin-left: 20%;
+	padding-top: 4px;
+}
+
+form .removeAttachment {
+    display: block;
+    font-size: 80%;
+    margin-left: 20%;
+}
+
+/** Home **/
+
+.crudNew {
+	text-align: right !important;
+}
+
+.crudNew a {
+	background: #54BD06;
+	padding: 2px 10px;
+	font-size: 90%;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	color: #fff !important;
+	text-decoration: none;
+}
+
+.crudNew a:hover {
+	opacity: .8;
+}
+
+/** List **/
+
+#crudList {
+	position: relative;
+		margin: 0;
+	padding: 0;
+}
+
+#crudListAdd a {
+	margin: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: #A31A1A;
+	padding: 3px 10px;
+	font-size: 90%;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-khtml-border-radius: 8px;
+	border-radius: 8px;
+	color: #fff !important;
+	text-decoration: none;
+}
+
+#crudListAdd a:hover {
+	opacity: .8;
+}
+
+#crudListSearch {
+	padding: 4px 5px;
+	border: 1px solid #ddd;
+	background: #efefef;
+}
+
+#crudListSearch input[type=text] {
+	width: 40%;
+}
+
+#crudListSearch a {
+	color: #111 !important;
+	font-size: 90%;
+}
+
+#crudListPagination {
+	padding: 4px 5px;
+	border: 1px solid #ddd;
+	background: #efefef;
+	border-top: 0;
+	font-size: 90%;
+	position: relative;
+}
+
+#crudListPagination .crudCount {
+	margin: 0;
+}
+
+#crudListPagination .crudPages {
+	margin: 0;
+	position: absolute;
+	right: 5px;
+	top: 4px;
+}
+
+/** Show **/
+
+#crudShow {
+	position: relative;
+}
+
+.crudDelete input {
+	color: #fff;
+	border: none;
+	margin: 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: #c00;
+	padding: 2px 10px;
+	font-size: 90%;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	-khtml-border-radius: 8px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.crudDelete input:hover {
+	opacity: .7;
+}
+
+#crudListTable tbody tr.even:hover, #crudListTable tbody tr.even td.highlighted {
+	background-color: #FCFCB6;
+}
+
+
+#crudListTable tbody tr.odd:hover, #crudListTable tbody tr.odd td.highlighted {
+	background-color: #FCFCB6;
+}
+
+#crudListTable tr.even:hover td.sorting_1 {
+	background-color: #FCFCB6;
+}
+
+#crudListTable tr.even:hover td.sorting_2 {
+	background-color: #FCFCB6;
+}
+
+#crudListTable tr.even:hover td.sorting_3 {
+	background-color: #FCFCB6;
+}
+
+
+#crudListTable tr.odd:hover td.sorting_1 {
+	background-color: #FCFCB6;
+}
+
+#crudListTable tr.odd:hover td.sorting_2 {
+	background-color: #FCFCB6;
+}
+
+#crudListTable tr.odd:hover td.sorting_3 {
+	background-color: #FCFCB6;
+}

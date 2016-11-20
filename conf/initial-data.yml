@@ -1,0 +1,8 @@
+﻿RubricURLStatus(url1):
+    name:           Не начато
+
+RubricURLStatus(url2):
+    name:           Ошибка
+
+RubricURLStatus(url3):
+    name:           Завершено

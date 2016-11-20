@@ -1,0 +1,77 @@
+<script>
+	$(function() {
+		$( ".crudButtons input" ).button();
+	});
+	
+	$('#saveForm').submit(function() {
+		action = $('#saveForm').attr("action");
+		$.ajax({
+			type: "POST",
+            url: action,
+			data: $('#saveForm').serialize(),
+            success: function(data) {
+				if (data != ""){
+					$("#crudShow").html(data);
+				} else {
+					Table1.fnDraw(false);
+					additionalRefresh();
+					$("#modalDlg").dialog("close");
+				}
+            }
+        });
+		return false;
+	});
+	
+	$('#deleteForm').submit(function() {
+		action = $('#deleteForm').attr("action");
+		$.ajax({
+			type: "POST",
+            url: action,
+			data: $('#deleteForm').serialize(),
+            success: function(data) {
+				if (data != ""){
+					$("#crudShow").html(data);
+				} else {
+					Table1.fnDraw(false);
+					additionalRefresh();
+					$("#modalDlg").dialog("close");
+				}
+            }
+        });
+		return false;
+	});
+</script>
+
+<div id="crudShow" class="${type.name}">
+
+    <h2 id="crudShowTitle">&{type.name}</h2>
+
+	#{if flash.error || error}
+	<div class="ui-state-error ui-corner-all" > 
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin: 2px 5px 0 0px;"></span> 
+			${error ?: flash.error}
+		</p>
+	</div>
+	#{/if}
+	
+    <div class="objectForm" id="objectForm">
+    #{form action:@save(object._key()), enctype:'multipart/form-data', id:'saveForm'}
+        #{crud.form /}
+        
+        #{if type.controllerClass.checkEditPermission()}
+        <p class="crudButtons">
+            <input type="submit" name="_save" value="&{'crud.save'}" />
+        </p>
+        #{/if}
+        
+    #{/form}
+    </div>
+      
+    #{if type.controllerClass.getField('delitable').get(null) && type.controllerClass.checkEditPermission()}
+	    #{form @delete(object._key()), id:'deleteForm'}
+	        <p class="crudDelete">
+	            <input type="submit" value="&{'crud.delete'}" />
+	        </p>
+	    #{/form}
+	#{/if} 
+</div>

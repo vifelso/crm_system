@@ -1,0 +1,12 @@
+#{extends 'main.html' /}
+<div id="crud">
+	#{if flash.error || error}
+	<div class="crudFlash flashError">
+	    ${error ?: flash.error}
+	</div>
+	#{/if}
+
+	<div id="crudContent">
+		#{doLayout /}
+	</div>
+</div>

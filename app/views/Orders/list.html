@@ -1,0 +1,339 @@
+#{extends 'CRUD/layout.html' /}
+#{set title:'Заказы | ' + messages.get('application.title')/}
+<script type="text/javascript" charset="utf-8">
+	var viewAllOrdersPermission = false;
+	
+    $(document).ready(function() {    	
+       	document.getElementById('orders_link').setAttribute("class", "current");
+       	var cancelOrderPermission = ${type.controllerClass.checkCancelPermission()}
+       	var makeAutoOrderPermission = ${type.controllerClass.checkMakeAutoPermission()}
+       	viewAllOrdersPermission = ${type.controllerClass.checkViewAllOrdersPermission()}
+       	
+       	var loadOrdersUrl;
+       	if(viewAllOrdersPermission) {
+       		loadOrdersUrl = '${type.controllerName}.json?filter1_field=status_id&filter1_value=1';
+       	} else {
+       		loadOrdersUrl = '${type.controllerName}.json?filter1_field=status_id&filter1_value=1&filter2_field=manager_id&filter2_value=&{session.username}';
+       	}
+       	
+		Table1 = $('#crudListTable').dataTable( {
+			"iDisplayLength": 15,
+			"aLengthMenu": [[15, 30, 50, 100], [15, 30, 50, 100]],
+     		"bJQueryUI": true,
+     		"sPaginationType": "full_numbers",
+     		"bAutoWidth": false,
+     		"aaSorting": [[1,'desc']],
+     		"oLanguage": {"sUrl": "/datatables/language/ru_RU.txt"},
+    		"bServerSide": true,
+        	"sAjaxSource": loadOrdersUrl,
+	        "aoColumns": [
+				{ "bVisible": false, "sName": 'id'},
+            	{ "sTitle": "№", "sWidth": "4%", "sName": 'id', "sClass": "notUnderline",
+	        		"fnRender": function ( oObj ) {return getOrderId(oObj);}
+            	},
+            	{ "bVisible": false, "sName": 'domain'},
+	        	{ "sTitle": "Домен", "sWidth": "12%", "sName": 'domain', "sClass": "notUnderline",
+					"fnRender": function ( oObj ) {return getDomain(oObj);}
+            	},
+            	{ "sTitle": "Архив", "sWidth": "4%", "sName": "web_archive_count", "sClass": "notUnderline", "bSortable": false,
+					"fnRender": function ( oObj ) {return getArchive(oObj);}
+            	},
+            	{ "sTitle": "Дата заказа", "sWidth": "11%", "sName": 'create_date'},
+				{ "sTitle": "Тиц", "sWidth": "4%", "sName": 'domain_tic', "bSortable": false},
+	            { "sTitle": "Оплачен до", "sWidth": "8%", "sName": "domain_paid", "bSortable": false,
+					"fnRender": function ( oObj ) {return getPaidTillDate(oObj.aData[7]);}
+            	},
+            	{ "sTitle": "Менеджер", "sWidth": "11%", "sName": 'manager'},
+	        	{ "sTitle": "Ожид. цена", "sWidth": "9%", "sName": 'expected_price'},
+	        	{ "bVisible": false, "sName": 'contacts'},
+	        	{ "bVisible": false, "sName": 'notes'},
+	        	{ "sTitle": "Цена", "sWidth": "7%", "sName": 'actual_price'},
+	        	{ "sTitle": "Тип покупки", "sWidth": "9%", "sName": 'actual_order_type'},
+	        	{ "sTitle": "Способ оплаты", "sWidth": "10%", "sName": 'payment_method'},
+	        	{ "bVisible": false, "sName": 'payment_info'},
+	        	{ "bVisible": false, "sName": 'reghost_info'},
+	        	{ "bVisible": false, "sName": "status"},
+	        	{ "bVisible": false, "sName": 'purchase_date'},
+	            { "sTitle": "Действия", "sWidth": "11%", "sClass": 'rightCell', "bSortable": false,
+	            	"fnRender": function ( oObj ) {return drowActionIcons(oObj, cancelOrderPermission, makeAutoOrderPermission);}
+	            }
+	        ]
+		});
+		
+		additionalRefresh();
+		
+	});
+
+	var switchTab = function(status_id) {
+		var oSettings = Table1.fnSettings();
+		var loadOrdersUrl;
+		if(viewAllOrdersPermission) {
+       		loadOrdersUrl = "${type.controllerName}.json?filter1_field=status_id&filter1_value=" + status_id;
+       	} else {
+       		loadOrdersUrl = "${type.controllerName}.json?filter1_field=status_id&filter1_value=" + status_id + '&filter2_field=manager_id&filter2_value=&{session.username}';
+       	}
+ 		oSettings.sAjaxSource = loadOrdersUrl;
+		Table1.fnDraw();
+	}
+	
+	var getOrdersCount = #{jsAction @Orders.getorderscount() /}
+		
+	var additionalRefresh = function() {
+		var ordersCount;
+		$.ajax({
+            url: getOrdersCount(),
+            success: function(data) {
+                 ordersCount = data.split(",");
+                 for(i=0; i < ordersCount.length; i++) {
+                 	elenemtId = "#ordersCount" + (i + 1);
+                 	$(elenemtId).html(ordersCount[i]);
+                 }
+            }
+        });
+	}
+	
+	var drowActionIcons = function (tableObject, cancelOrderPermission, makeAutoOrderPermission) {
+		var status = tableObject.aData[17];
+		var actionLinks = "";
+		var onPhoneLink = "<a href='javascript:onPhoneStatus(" + tableObject.aData[0] + ");'><img src='/public/images/icons/on-phone.png' title='На прозвон'/></a>";
+		var notOnPhoneLink = "<a href='javascript:notOnPhoneStatus(" + tableObject.aData[0] + ");'><img src='/public/images/icons/not-on-phone.png' title='Не дозвонились'></a>";
+		var thinkingLink = "<a href='javascript:thinkingStatus(" + tableObject.aData[0] + ");'>" + getIcon('help', 'Владелец думает') + "</a>";
+		var agreeLink = "<a href='javascript:agreeStatus(" + tableObject.aData[0] + ");'>" + getIcon('check', 'Владелец согласен') + "</a>";
+		var disagreeLink = "<a href='javascript:disagreeStatus(" + tableObject.aData[0] + ");'>" + getIcon('close', 'Владелец отказал') + "</a>";
+		var paymentWaitLink = "<a href='javascript:paymentWaitStatus(" + tableObject.aData[0] + ");'>" + getIcon('cart', 'Ожидает оплаты') + "</a>";
+		var purchasedLink = "<a href='javascript:purchasedStatus(" + tableObject.aData[0] + ");'>" + getIcon('circle-check', 'Куплен') + "</a>";
+		var cancelOrderLink = "";
+		if(cancelOrderPermission) {
+			cancelOrderLink = "<a href='javascript:cancelOrder(" + tableObject.aData[0] + ");'>" + getIcon('cancel', 'Отменить заказ') + "</a>";
+		}	
+		var makeAutoOrderLink = "";
+		if(makeAutoOrderPermission) {
+			makeAutoOrderLink = "<a href='javascript:autoStatus(" + tableObject.aData[0] + ");'>" + getIcon('gear', 'Сделать заказ автоматическим') + "</a>";
+		}
+		
+		if (status == "Непроверен") {
+			actionLinks = cancelOrderLink + disagreeLink + makeAutoOrderLink + onPhoneLink + thinkingLink + agreeLink;
+		}
+		
+		if (status == "Автоматический") {
+			actionLinks = cancelOrderLink + disagreeLink + purchasedLink;
+		}
+		
+		if (status == "На прозвоне") {
+			actionLinks = cancelOrderLink + disagreeLink + notOnPhoneLink + thinkingLink + agreeLink;
+		}
+		
+		if (status == "Обдумывается") {
+			actionLinks = cancelOrderLink + disagreeLink + agreeLink;
+		}
+		
+		if (status == "Согласовывается") {
+			actionLinks = cancelOrderLink + disagreeLink + thinkingLink + paymentWaitLink;
+		}
+		
+		if (status == "Ожидает оплаты") {
+			actionLinks = purchasedLink;
+		}
+
+		return actionLinks;
+	}
+	
+	var autoStatus = function(id) {
+		var autoStatusAction = #{jsAction @autostatus(':id') /};       
+        $.ajax({
+            url: autoStatusAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+	
+	var onPhoneStatus = function(id) {
+		var onPhoneStatusAction = #{jsAction @onphonestatus(':id') /};       
+        $.ajax({
+            url: onPhoneStatusAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var notOnPhoneStatus = function(id) {
+		var notOnPhoneStatusAction = #{jsAction @notonphonestatus(':id') /};       
+        $.ajax({
+            url: notOnPhoneStatusAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var thinkingStatus = function(id) {
+		var thinkingStatusAction = #{jsAction @thinkingstatus(':id') /};       
+        $.ajax({
+            url: thinkingStatusAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var agreeStatus = function(id) {
+		var agreeStatusAction = #{jsAction @agreestatus(':id') /};       
+        $.ajax({
+            url: agreeStatusAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var disagreeStatus = function(id) {
+		var disagreeStatusAction = #{jsAction @disagreestatus(':id') /};       
+        $.ajax({
+            url: disagreeStatusAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var purchasedStatus = function(id) {
+		var purchasedStatusAction = #{jsAction @purchasedstatus(':id') /};       
+        $.ajax({
+            url: purchasedStatusAction({id: id}),
+            success: function(events) {
+				Table1.fnDraw(false);
+				additionalRefresh();
+            }
+        });
+    }
+    
+    var paymentWaitStatus = function(id) {
+        $('#paymentWaitDialog').dialog({
+            width: 400,
+            modal: true,
+            buttons: {
+                "Да": function() {
+                    var paymentWaitStatusAction = #{jsAction @paymentwaitstatus(':id') /};
+                    $.ajax({
+			            url: paymentWaitStatusAction({id: id}),
+			            success: function(events) {
+							Table1.fnDraw(false);
+							additionalRefresh();
+			            }
+			        });
+			        $(this).dialog("close");
+                },
+                "Нет": function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+        
+    }
+    
+    var cancelOrder = function(id) {
+        $('#cancelOrderDialog').dialog({
+            width: 400,
+            modal: true,
+            buttons: {
+                "Да": function() {
+                    var cancelOrderAction = #{jsAction @cancelorder(':id') /};
+                    $.ajax({
+			            url: cancelOrderAction({id: id}),
+			            success: function(events) {
+							Table1.fnDraw(false);
+							additionalRefresh();
+			            }
+			        });
+			        $(this).dialog("close");
+                },
+                "Нет": function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
+    }
+	
+	var getOrderId = function (oObj) {
+		orderLink = "<a id='/orders/" + oObj.aData[0] + "' title='Заказ номер " + oObj.aData[0] + "' href='#' onclick='openModal(this);'>" + oObj.aData[0] + "</a>";
+		return orderLink;
+	}
+	
+	var getDomain = function (oObj) {
+		var domainName = oObj.aData[2];
+		var domainDeleted = domainName.indexOf('Домен не в каталоге: ');
+		var redColor = '';
+		if(domainDeleted == 0 ){
+			redColor = "style='color:red'";
+			domainName = domainName.replace("Домен не в каталоге: ","");
+		}
+		
+		var domainWowww = domainName;
+		if(domainName.indexOf('www.') == 0){
+			domainWowww = domainName.substring(4);
+		}
+		domainLink = "<a id='/domains/" + domainName + "/showbyname'" + redColor + " title='Домен: " + domainName + "' href='#' onclick='openModal(this);'>" + domainName + "</a>" +
+			"<a href='http://" + domainName + "' target='_blank' class='external-link'><img src='/public/images/icons/external-link.png' title='Перейти на сайт'></a>" +
+			"<a href='http://whois.pp.ru/" + domainWowww + "' target='_blank' class='external-link'><img src='/public/images/icons/info.png' title='Проверить Whois'></a>";
+		return domainLink;
+	}
+	
+	var getArchive = function (tableObject) {
+		var archiveCount = tableObject.aData[4];
+		if(archiveCount == "-1"){
+			archiveCount = "-";
+		}
+		archiveLink = "<a title='Посмотреть архив' target='_blank' href='http://wayback.archive.org/web/*/" + tableObject.aData[2] + "'>" + archiveCount + "</a>";
+		return archiveLink;
+	}
+	
+	var getPaidTillDate = function (dateString) {
+		var returnDate = dateString;
+		if (dateString == "3000-01-01"){
+			returnDate = "";
+		}
+		return returnDate;
+	}
+	
+</script>
+
+<div id="crudList" class="${type.name}">
+    <h2 id="crudListTitle">Заказы</h2>
+	<div id="tabs">
+		<ul>
+			<li><a href="#tabs-1" onclick="switchTab(1);">Непроверены (<span id="ordersCount1"></span>)</a></li>
+			#{if type.controllerClass.checkMakeAutoPermission()}<li><a href="#tabs-2" onclick="switchTab(10);">Автоматич. (<span id="ordersCount10"></span>)</a></li>#{/if}
+			<li><a href="#tabs-2" onclick="switchTab(2);">На прозвоне (<span id="ordersCount2"></span>)</a></li>
+			<li><a href="#tabs-3" onclick="switchTab(3);">Думают (<span id="ordersCount3"></span>)</a></li>
+			<li><a href="#tabs-4" onclick="switchTab(4);">Согласны (<span id="ordersCount4"></span>)</a></li>
+			<li><a href="#tabs-5" onclick="switchTab(5);">Ожид. оплаты (<span id="ordersCount5"></span>)</a></li>
+			<li><a href="#tabs-6" onclick="switchTab(6);">Не дозвон. (<span id="ordersCount6"></span>)</a></li>
+			<li><a href="#tabs-7" onclick="switchTab(7);">Отказ (<span id="ordersCount7"></span>)</a></li>
+			<li><a href="#tabs-8" onclick="switchTab(8);">Отмена (<span id="ordersCount8"></span>)</a></li>
+			<li><a href="#tabs-9" onclick="switchTab(9);">Куплены (<span id="ordersCount9"></span>)</a></li>		
+		</ul>
+		<div id="tabs-1"></div><div id="tabs-2"></div><div id="tabs-3"></div><div id="tabs-4"></div><div id="tabs-5"></div><div id="tabs-6"></div><div id="tabs-7"></div><div id="tabs-8"></div><div id="tabs-9"></div>
+	</div>
+	<div id="crudListDivTabs">
+		<table id="crudListTable"></table>
+	</div>
+	<div id="cancelOrderDialog" class="jqModal" title="Отмена заказа по домену">
+		<p><span class="ui-icon ui-icon-alert jqModalAlert"></span> Вы уверены, что хотите отменить этот заказ?</p>
+		<p>Для подтверждения отмены нажмите "Да"</p>
+		<p>Если вы не хотите отменять заказ, нажмите "Нет"<p>
+	</div>
+	<div id="paymentWaitDialog" class="jqModal" title="Заказ ожидает оплаты">
+		<p><span class="ui-icon ui-icon-alert jqModalAlert"></span> Вы уверены, что хотите перевести заказ в статус "Ожидает оплаты"?</p>
+		<p>Перед переводом заказа в статус "Ожидает оплаты" необходимо убедиться, что предыдущий владелец домена переделегировал домен и/или сайт или передал права на него.</p>
+		<p>Для подтверждения перевода в статус "Ожидает оплаты" нажмите "Да"</p>
+		<p>Если вы не хотите менять статус заказа, нажмите "Нет"<p>
+	</div>
+</div>

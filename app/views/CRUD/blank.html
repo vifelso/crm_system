@@ -1,0 +1,52 @@
+<script>
+	$(function() {
+		$( ".crudButtons input" ).button();
+	});
+	
+	$('#createForm').submit(function() {
+		action = $('#createForm').attr("action");
+		$.ajax({
+			type: "POST",
+            url: action,
+			data: $('#createForm').serialize(),
+            success: function(data) {
+				if (data != ""){
+					$("#crudBlank").html(data);
+				} else {
+					Table1.fnDraw(false);
+					additionalRefresh();
+					$("#modalDlg").dialog("close");
+				}
+            }
+        });
+		return false;
+	});
+</script>
+
+<div id="crudBlank" class="${type.name}">
+
+	<h2 id="crudBlankTitle">&{type.name}</h2>
+	
+	#{if flash.error || error}
+	<div class="ui-state-error ui-corner-all" > 
+		<p><span class="ui-icon ui-icon-alert" style="float:left; margin: 2px 5px 0 0px;"></span> 
+			${error ?: flash.error}
+		</p>
+	</div>
+	#{/if}
+	
+    <div class="objectForm">
+    #{form action:@create(), enctype:'multipart/form-data', id:'createForm'}
+        #{crud.form /}
+        <p class="crudButtons">
+            <input type="submit" name="_save" value="&{'crud.save'}" />
+        </p>
+		
+		#{if orderDomainId}
+			<input id="object_domain_id" type="hidden" name="object.domain.id" value="${orderDomainId}"/>
+		#{/if}
+		
+    #{/form}
+    </div>
+	
+</div>

@@ -1,0 +1,216 @@
+html,body {
+	margin: 0;
+	padding: 0;
+	font-family: segoe ui, Arial, sans-serif;
+	font-size: 90%;
+	//background-color: #FFFFFC;
+	background-color: white;
+	height: 100%;
+}
+
+#menu {
+    padding-top:9px;
+    padding-left:12px;
+    padding-bottom:11px;
+    margin:0 auto;
+    background-color:#494F52;
+    //background-color:orange;
+    border-bottom: 1px solid black;
+}
+
+.wrapper {
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 0 -31px 0;
+	padding: 0;
+}
+
+.jqModal {
+	background: white;
+	display: none;
+}
+
+#cancelOrderDialog, #paymentWaitDialog, #domainZoneNotReadyDialog {
+	background: white;	
+}
+
+.jqModalAlert {
+	float:left; 
+	margin:0 7px 0 0;
+}
+
+.external-link {
+	margin-left:5px;
+	border:0;
+}
+
+.external-link img{
+	border:0;
+}
+
+.footer-push,.footer {
+	height: 30px;
+	margin: 0;
+	padding: 0;
+}
+
+.footer {
+	border-top: 1px solid black;
+	background-color: #494F52;
+}
+
+.footer-text {
+	font-size: 10px;
+	color: #aaa;
+	padding: 8px 0 0 22px;
+}
+
+td.center {
+	text-align: center;
+}
+
+td.rightCell a {
+	float: right;
+	padding-right:2px;
+}
+
+td.notUnderline a {
+	text-decoration: none;
+	//border-bottom: 1px dashed gray;
+}
+
+ a.notUnderline {
+	text-decoration: none;
+	//border-bottom: 1px dashed gray;
+}
+
+#modalDlg h2 {
+	margin-top: 0;
+	padding-top: 0;
+	margin-bottom: 5px;
+	margin-left: 2px;
+	font-size: 17px;
+}
+
+.crudButtons input {
+	padding: 2px 10px;
+	cursor: pointer;
+	cursor: hand;
+}
+
+.objectForm {
+	background-color: #FFFFFC;
+	margin-top: 10px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	-khtml-border-radius: 6px;
+	border-radius: 6px;
+}
+
+
+#crudListTitle {
+	margin: 0;
+	padding: 0 0 7px 4px;
+}
+
+#crudListDivTabs {
+	padding-left: 3px;
+}
+
+#crudListDivWithoutTabs {
+	padding-left: 3px;
+	padding-top: 8px;
+	
+}
+
+#crudListDivTabs div {
+	-moz-border-radius-topleft: 0px;
+	-webkit-border-top-left-radius: 0px;
+	-khtml-border-top-left-radius: 0px;
+	border-top-left-radius: 0px;
+}
+
+#crudListTable a {
+	color: black;
+}
+
+#tabs {
+	-moz-border-radius-bottomleft: 0px;
+	-webkit-border-bottom-left-radius: 0px;
+	-khtml-border-bottom-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+	-moz-border-radius-bottomright: 0px;
+	-webkit-border-bottom-right-radius: 0px;
+	-khtml-border-bottom-right-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+
+.ui-tabs {
+	margin: 0;
+	padding: 0;
+	border: 0px;
+	background: none;
+}
+
+.ui-tabs-nav {
+	border: 0px;
+	background: none;
+}
+
+#tabs-1, #tabs-2, #tabs-3, #tabs-4, #tabs-5, #tabs-6, #tabs-7, #tabs-8, #tabs-9, #tabs-10 {
+	margin: 0;
+	padding: 0;
+}
+
+ul#icons {
+	margin: 0;
+	padding: 0;
+}
+
+ul#icons li {
+	margin: 0px;
+	position: relative;
+	padding: 0px 0;
+	cursor: pointer;
+	list-style: none;
+}
+
+ul#icons span.ui-icon {
+	margin: 0 0px;
+}
+
+.on-phone {
+	width: 16px; 
+	height: 16px; 
+	background-image: url(images/on-phone.png);
+}
+
+.ui-state-error p {
+	margin: 7px;
+}
+
+/* ---------------------------------------------------------------
+Clearfix
+--------------------------------------------------------------- */
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+.clearfix {
+	display: inline-block;
+}
+
+/* Hides from IE-mac \*/
+* html .clearfix {
+	height: 1%;
+}
+
+.clearfix {
+	display: block;
+}
+/* End hide from IE-mac */
